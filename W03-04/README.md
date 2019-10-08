@@ -585,3 +585,871 @@
 
 			- W Javie np. moduly maven
 
+## Lekcja 4.06. Wybór architektury systemowej
+
+### Projekt Kursik
+
+- 1. Wybor driverow
+
+	- Ograniczenia
+
+		- projekt od zera
+
+			- z jednej strony dobrze, bo mamy duza decyzyjnosc w zakresie technologii
+
+			- z drugiej to zle, bo biznes nie do konca wie, czego chce
+
+				- bedzie duzo feedbacku
+
+		- zespol sklada sie z 5 developerow
+
+		- za 4 miesiace MVP
+
+	- Atrybuty jakosciowe
+
+		- Obciazenie 50-150 req/s
+
+		- SLA - dostepnosc 99,99%
+
+- Decyzja
+
+	- Modularny monolit
+
+- Konsekwencje
+
+	- Pozytywne
+
+		- Wybaczanie bledow w wyznaczaniu granic
+
+		- szybka i niezawodna komunikacja
+
+		- prosta infrastruktura
+
+			- bedzie wiele instancji
+
+		- latwa implementacja i wdrazanie
+
+		- mozliwosc wydzielania osobnych serwisow w przyszlosci
+
+	- Negatywne
+
+		- skalujemy zawsze cala aplikacje
+
+		- walidacja wideo moze uzywac sporo zasobow
+
+			- widzimy ryzyko, ale je akceptujemy
+
+		- zadbanie o granice modulow
+
+### Structurizer
+
+- Decision log
+
+	- Prefixy zakresu
+
+		- SYS
+
+			- caly system
+
+		- APP
+
+			- konkretna aplikacja
+
+		- APP - XXX
+
+			- modul XXX w aplikacji
+
+	- Przyklady - SYS
+
+		- wybrano polski jako jezyk dokumentacji dla biznesu, angielski dla reszty
+
+		- uzycie modularnego monolitu
+
+- Zapis BPES i PLES
+
+- Diagramy
+
+	- C1 System Context
+
+	- C2 Kontenery
+
+		- Jednym z nich jest nasz modularny monolit
+
+	- C3 Komponenty
+
+		- Wnetrze modularnego monolitu
+
+		- To widac BC odkryte podczas PLES
+
+## Lekcja 4.05. Autonomia
+
+### Jeden z podstawowych kryteriow stosowalnosci mikroserwisow
+
+### Rodzaje
+
+- Biznesowa
+
+	- zapewnienie nam swietego spokoju
+
+		- jeden biznes mowi, zeby cos robic, drugi, zeby tego nie robic
+
+			- Biznes zw. ze sprzedaza B2B mowi, ze jesli wprowadzimy jakas zmiane, to pozyskamy gigantycznego klienta
+
+			- Biznes B2C odpowiada, ze w codebasie jest ich projekt, ktory przetestuja dopiero za miesiac, wiec B2B niczego nie wdrozy
+
+	- pozwala rozwijac produkty niezaleznie od siebie
+
+		- system sprzedazy B2B
+
+		- system sprzedazy B2C
+
+	- rozny cykl zycia poszczegolnych produktow
+
+	- mniejsza zlozonosc kodu
+
+		- wieksza specjalizacja
+
+		- mniej ifow w systemie
+
+		- jeden ekspert domenowy
+
+- Techniczna
+
+	- wydzielanie komponentow z uwagi na...
+
+		- rozna skalowalnosc
+
+			- jeden komponent charakteryzuje sie zupelnie inna utylizacja zasobow
+
+			- mimo ze jest zarzadzana przez tego samego eksperta domenowego i zawsze wdrazana razem, to oplaca sie wydzielic, aby zainstalowac na niezaleznej architekturze
+
+		- wymagania bezpieczenstwa
+
+			- np. systemy kartowe z PCI DSS
+
+			- warto wydzielic do innego komponentu, np. zeby wyizolowac sieciowo
+
+				- i uproscic procedury wdrozeniowe w reszcie systemu
+
+- Technologiczna
+
+	- dobieramy narzedzie do problemu
+
+		- Ten Bounded Context mozna byloby napisac w Javie, ale lepiej w Go, bo jest duzo integracji z systemem operacyjnym
+
+	- rozne jezyki programowania
+
+	- rozne systemy operacyjne
+
+- Swiadome i wlasciwie stosowanie driverow architektonicznych, pomaga swiadomie kontrolowac granice techniczne i technologiczne
+
+### Autonomia a standardy
+
+- to ze moge zastosowac rozne technologie, nie znaczy, ze musze
+
+	- drivery technologiczne dadza odpowiedz, czy warto zmieniac
+
+		- jedna z klas driverow sa konwencje
+
+			- jesli baza relacyjna, to MySQL
+
+			- jesli nierelacyjna, to Mongo
+
+			- moge wybrac cos innego, ale...
+
+				- musze udownic driverami, a najlepiej metrykami, ze to ma sens
+
+	- np. nie musisz zmieniac Solr na ElasticSearch, bo Solr zapewnia to, czego potrzebujesz
+
+- mozemy dopasowac siebie do technologii albo technologie do siebie
+
+	- jesli Spring Session potrzebuje Redisa, a my go uzywamy
+
+		- to moge wdrozyc Redisa albo...
+
+			- co nie bedzie trywialne
+
+		- napisac wsparcie do Spring Session dla swojej bazy
+
+			- oddac utrzymanie do community lub dostawcy
+
+			- mniejszy i krotkofalowy koszt
+
+## Lekcja 4.04. Mikroserwisy
+
+### Geneza
+
+- ESB
+
+	- Gdzie scentralizowana komunikacja ograniczala skalowalnosc i odpornosc systemu
+
+- Vendor Driven Standards -> Community Driven Solutions
+
+	- nie centralny punkt mowi nam, jak funkcjonowac
+
+	- tylko cala spolecznosc wypracowuje rozwiazenie
+
+- Przechodzimy z...
+
+	- ciezkiego jezyka komunikacji kanonicznej...
+
+		- duze dokumenty SOAP
+
+	- na 4 poziomy dojrzalosci RESTa
+
+### Charakterystyka
+
+- implementacja wzorca SOA
+
+	- w ESB byl nacisk na orkiestracje
+
+- nacisk na choreografie
+
+	- nie ma dyrygenta, ktory mowi, jak zyc
+
+	- same uslugi wiedza, jak sie komunikowac
+
+- eliminacja punktow centralnych
+
+	- klient zlecajacy operacje musi wiedziec, gdzie znajduje sie usluga odpowiedzialna za te operacje
+
+		- w jaki sposob
+
+		- jaki dokument
+
+		- metoda http
+
+	- wplywa pozytywnie na
+
+		- poprawienie skalowalnosci
+
+		- eliminacje Single Point of Failure
+
+- luzne powiazania komponentow
+
+	- bo skoro zmiana jednego kompontenu wplywa nie tylko na szyne, ale na wszystkie uslugi, z ktorymi wspolpracuje, to powiazania musza byc luzne
+
+		- bo zmiana jednej uslugi nie moze pociagac za soba koniecznosci wdrozenia kilku innych w tym samym momencie
+
+- cloud native
+
+	- mikroserwisy sa projektowane pod katem wykorzystania ich w chmurze
+
+		- m.in. wykorzystanie skalowania
+
+### Wady
+
+- duza dowolnosc technologiczna moze prowadzic do chaosu
+
+	- ludzie wychodzacy z monolitu dostaja malpiego rozumu
+
+		- wykorzystuja kazda technologie, „bo tak”
+
+		- a nie bo determinuje to jakis driver architektoniczny
+
+- bardzo wysoka zlozonosc technologiczna
+
+	- najtrudniejsza architektura
+
+	- liczba elementow do przewidzenia ogromna
+
+	- liczba technologii ogromna
+
+- skomplikowana infrastruktura
+
+	- zlozonosc rosnie lawinowo
+
+- utrudniona analiza komunikacji
+
+	- ESB zapewnialo mechanizmy logowania, audytowalnosci, sledzenia
+
+	- w mikroserwisach musimy zapewnic to sami
+
+### Kryteria stosowalnosci
+
+- potrzeba autonomii
+
+	- z zalozenia nie ma relesow, ogolnych wdrozen
+
+	- kazdy z komponentow moze wdrozyc sie niezaleznie
+
+	- autonomia wdrozen instancji rozni mikroserwisy od klasycznych systemow rozproszonych
+
+- kompetencje pozwalajace opanowac technologie i narzedzia
+
+	- zespol musi byc bardzo kompetenty, zeby byc w stanie pracowac z ta trudna architektura
+
+- potrzeba szybkiej/wysokiej skalowalnosci
+
+	- dodanie nowej instancji jest operacja natywna
+
+		- dynamiczna skalowalnosc
+
+			- np. usluga streamowania video bedzie w 5 instancjach, za chwile w 12, a pozniej w 2
+
+## Lekcja 4.03. Enterprise Service Bus (ESB)
+
+### Czym jest?
+
+- implementacja wzorca SOA
+
+- szyna integracyjna
+
+	- cala komunikacji pomiedzy serwisami odbywa sie za posrednictwem szyny
+
+	- zapewnia komunikacje w calej organizacji, wiec musi dostarczac...
+
+		- ...bogaty zestaw wtyczek (connectors)
+
+			- soap
+
+			- rest
+
+			- db
+
+			- ftp
+
+			- mail
+
+	- Czesto komercyjny produkt pudelkowy
+
+		- IBM AppConnect
+
+		- WebMethods
+
+		- etc.
+
+### Charakterstyka
+
+- wysoka skalowalnosc
+
+	- kazda z uslug moze byc wdrozona w dowolnej liczbie instancji
+
+- kompleksowosc (governance)
+
+	- bezpieczenstwo
+
+		- autoryzacja
+
+		- uwierzytelnianie
+
+	- audytowalnosc
+
+	- logowanie i sledzenie (tracing)
+
+		- szyna zapewnia narzedzia, ktore pozwalaja stwierdzic kto, kiedy i dlaczego dokonal zmian
+
+	- konfigurowalnosc
+
+		- spora czesc procesu moze byc obsluzona za posrednictwem samej szyny
+
+### Komunikacja
+
+- nacisk na orkierstracje
+
+	- szyna, jak dyrygent, kontroluje przeplyw calego procesu komunikacji
+
+		- mnie, jako klienta nie interesuje, do kogo i za pomoca jakiego protokolu zostanie wyslana wiadomosc 
+
+			- mowie: potrzebuje dodac kurs on-line
+
+			- reszte wie szyna
+
+- kanoniczny model danych
+
+	- bogaty, ale mocno weryfikuje schemat
+
+		- pozwala na zarzadzanie tak obszerna komunikacja w jednym punkcie
+
+	- jest to konieczne, bo szyna mocno stabilizuje i hermetyzuje komunikacje
+
+- współdzielenie bibliotek klienckich
+
+	- szyna udostepnia gotowa biblioteke do komunikacji
+
+		- nie ja decyduje, jak sie z nia komunikowac
+
+		- z zagniezdzonym kanonicznym modelem danych
+
+### Wady
+
+- wysoka cena
+
+	- narzedzia sa bardzo drogie
+
+	- niepomijalna w budzecie
+
+- waskie gardlo i single point of failure
+
+	- uslugi dobrze sie skaluja, szyna nie
+
+	- przyklad
+
+		- padl dominujacy konsument; padl na 24h
+
+		- szyna zaczela odkladac wiadomosci, ktore powinen pobierac konsument
+
+		- po skolejkowaniu ich duzej liczby, infrastruktura pod szyna zutylizowala sie w 100%
+
+		- do wstania potrzebowala 10x tyle zasobow, co do normalnego dzialania
+
+		- awaria naprawiona po 8h
+
+		- samo dzialanie uslug bylo ok, ale komunikacja nie dzialala, wiec caly system padl
+
+- ograniczona produktywnosc rozwoju szyny
+
+	- wdrozenia szyny
+
+		- duze zespoly
+
+			- opisujace komunikacje
+
+				- za pomoca designerow UIowych
+
+					- gdzie definiuje sie, jakie pole ma sie mapowac do jakiego pola
+
+		- efekt
+
+			- coraz wiecej logiki znajduje sie w szynie
+
+				- staje sie ona gigantycznym monolitem
+
+			- jako firma, mozemy zaimplementowac wszystkie zmiany, we wszystkich systemach, poza szyna
+
+				- na koncu dostawalismy pozwolenie na komunikacje z pominieciem szyny
+
+					- krok do mikroserwisow
+
+## Lekcja 4.02. Systemy rozproszone
+
+### Definicja
+
+- System zaimplementowany jako zestaw niezaleznych uslug produktu komunikujacych sie za posrednictwem sieci
+
+### Powody rozpraszania systemu
+
+- To wady monolitu
+
+- Konkretnie
+
+	- Skalowalnosc
+
+		- Mozemy skalowac kazdy komponent niezaleznie
+
+			- Kazdy moze miec inna infrastrukture
+
+	- Odpornosc (resilience)
+
+		- Problem z jednym komponentem nie przeklada sie na inne
+
+			- O ile system jest prawidlowo zaprojektowany i zaimplementowany...
+
+	- Heterogenicznosc technologii
+
+		- W monolicie - homogenicznosc technologiczna
+
+			- Nie napiszemy monolitu w Javie i Pythonie jednoczesnie
+
+		- Mozliwe w systemie rozproszonym
+
+			- Jedna usluga w Javie, druga w .NET, trzecia w PHP
+
+	- Regulacje i bezpieczenstwo
+
+		- Latwiej dostosowac do wymagan pojedynczy komponent, niz caly system
+
+		- Przyklady
+
+			- RODO
+
+				- Latwiej wyizolowac modul objety wysumblimowanymi regulami bezpieczenstwa, niz zrobic to dla calego systemu
+
+			- Normy regulartora platnosci
+
+	- Produktywnosc
+
+		- Skalowanie liczby osob pracujacych nad systemem
+
+		- Juz od kiludziesieciu osob staje sie to trudne w wypadku monolitu
+
+			- Nie mowiac o setkach, czy tysiacach
+
+### Koszty rozpraszania systemu
+
+- Wzrost zlozonosci infrastruktury
+
+	- Skokowy, lawinowy
+
+	- Siatka pipelinow, serwerow, artefaktow, w roznych
+
+- Brak transakcyjnosci
+
+	- Transakcje rozproszone sprawdzaja sie w ksiazkach
+
+		- Glownie ze wzgledu na problemy ze skalowalnoscia...
+
+		- deadlockami, powodowanymi wielofazowymi commitami
+
+	- Musimy zapewnic kompensacje
+
+		- Np. musimy wycofac fakture, gdy platnosc sie nie powiodla
+
+			- Nie ma rollbacku
+
+- Utrudnienia
+
+	- lokalny development
+
+		- uruchomienie lokalnie systemu rozproszonego jest trudne
+
+			- dokladanie kolejnych komponentow
+
+			- mockowanie, stubowanie
+
+	- zmiany przecinajace komponenty w systemie
+
+		- musimy je koordynowac
+
+			- miedzy zespolami i systemami
+
+			- czesto zmieniamy kilka komponentow jednoczesnie i w odpowiedniej kolejnosci
+
+	- zapewnienie bezpieczenstwa
+
+		- mamy duzo komunikacji sieciowej, ktora musi byc odpowiednio zabezpieczona
+
+	- analiza i debuggowanie
+
+		- przesledzenie komunikacji
+
+		- wnioskowanie
+
+			- przyklady
+
+				- kto naliczyl ten rabat
+
+				- dlaczego id uzytkownika jest pusty
+
+		- wymaga odpowiedniego podejscia, doswiadczenia i zestawu narzedzi
+
+### Bledne zalozenia w projektowaniu
+
+- Siec jest niezawodna (reliable)
+
+- brak opoznien (latency)
+
+- siec jest bezpieczna
+
+	- kazdy etap nalezy zabezpieczyc
+
+		- moze dojsc do ataku ze srodka
+
+- topologia jest niezmienna
+
+	- dodawanie instancji
+
+	- migracja instancji
+
+		- nowe adresy IP
+
+- brak kosztow transportu
+
+	- zwlaszcza w chmurze, koszt moze nieprzyjemnie zaskoczyc
+
+### Service-oriented architecture (SOA)
+
+- styl architektoniczny
+
+- przez wiele lat tozsama z ESB
+
+	- Enterprise Service Bus
+
+	- warto brac pod uwage, ze rozmowca moze to tak traktowac
+
+	- mimo, ze SOA nie narzuca ESB
+
+- Cechy
+
+	- uslugi niezalezne od technologii i dostawcow
+
+	- sa autonomiczne biznesowo
+
+	- maja wyrazne granice
+
+		- widizmy jasno, jak wspolpracuja
+
+		- jasny zakres odpowiedzialnosci
+
+	- wspoldziela kontrakt, nie implementacje
+
+		- znamy API, ale nie implementacje
+
+## Lekcja 04.01. Monolit
+
+### Czym jest?
+
+- System zaimplementowany calosciowo, jako jedna aplikacja
+
+	- Jednostka Wdrozeniowa
+
+	- Deployment Unit (DU)
+
+- Samowystarczalny w zdefiniowanym zakresie
+
+	- Aplikacja zawiera wszystko: sprzedaz kursow, streaming, faktury, platnosci, etc. 
+
+- Bardzo czesto pozbawiony modularnosci
+
+	- Modularnosc to nie znaczy brak modulow
+
+		- Czesto w monolicie sa moduly stricte techniczne
+
+		- Warstwy
+
+			- API
+
+			- UI
+
+			- DAO
+
+			- logika aplikacyjna
+
+			- logika biznesowa
+
+### Zalety
+
+- Szybka i niezawodna komunikacja
+
+	- Jeden proces w OS
+
+	- ta sama przestrzen pamieci
+
+	- czesto w jednym watku
+
+	- zawsze szybsze od (de)serializacji, wysylania po sieci
+
+- transakcyjnosc
+
+	- ACID
+
+		- nie wystepuje w zadnym innym wzorcu systemow
+
+	- idealne, gdy chcemy uzyskac gwarancja bardzo silnej spojnosci procesu biznesowego
+
+- bezpieczna komunikacja
+
+	- trudnosc wpiecia sie pomiedzy wywolania metod jest duzo wieksza, niz w przypadku systemow rozproszonych
+
+	- zapewnienie bezpieczenstwa jest duzo latwiejsze, jesli odpowiednio zabezpieczylismy granice
+
+- prosta infrastuktura
+
+	- wdrozenie
+
+		- jeden serwer
+
+		- jeden artefakt aplikacji
+
+	- prostsza automatyzacja i zarzadzanie infrastruktura
+
+		- ograniczona liczba komponentow
+
+- latwy development na starcie
+
+	- bo latwa infrastruktura
+
+	- bo szansa, ze do projektu dolaczy ktos, kto nie zna tej architektury, jest nikła
+
+- Sa to zalety niemozliwe do osiagniecia w innych systemach
+
+### Wady
+
+- Kruchy i nieodporny (fragile)
+
+	- zlozonosc esencjonalna
+
+		- wynika z natury problemu
+
+	- jakikolwiek blad wystapi, to z punktu widzenia systemu operacyjnego nie ma to znaczenia i jest traktowany jako blad calego systemu
+
+		- Przyklady
+
+			- czy to w krytycznym procesie biznesowym
+
+			- czy w generowaniu raportu kwartalnego
+
+			- i taka cala aplikacja pada
+
+			- Jesli nastepuje wyciek pamieci, nadmierna utylizacja zasobow...
+
+				- ...uderza to w cala aplikacje
+
+				- a nie tylko w element systemu, ktory ma problem
+
+- ograniczona skalowalnosc
+
+	- wynika z natury problemu
+
+	- wydajnosci i infrastruktury
+
+		- Mozna zduplikowac monolit na blizniaczej insfrastukurze
+
+			- Moga dzialac w klastrze
+
+			- Skalowanie wszystko albo nic
+
+		- Natomiast nie mozna wyodrebnic fragmentu, ktory ma problem ze skalowalnoscia
+
+	- produktywnosci
+
+		- Zaangazowanie kilkudziesieciu, moze kilkuset osob do pracy nad jednym codebase’m jest proszeniem sie o problemy
+
+- trudnosci zachowania struktury
+
+	- zmiana w jednym miejscu ma nieprzewidywalne konsekwencje dla calego systemu
+
+	- Jak sie bronic?
+
+		- Cover and Modify
+
+			- zabezpieczamy fragment testami, a pozniej go modyfikujemy
+
+			- czestszym podejsciem jest Modify and Pray
+
+				- zmieniamy i modlimy sie, zeby dzialalo
+
+- trudny w utrzymaniu
+
+	- zlozonosc przypadkowa
+
+		- wynika ze sposobu rozwiazania problemu
+
+		- ze sposobu implementacji
+
+		- a nie z natury problemu
+
+	- wynika z braku zachowania struktury
+
+### Modularny Monolit
+
+- odpowiedz na zlozonosc przypadkowa monolitu
+
+- Cechy
+
+	- wciaz pojedyncza Deployment Unit
+
+	- modularna struktura wewnetrzna
+
+		- zlozony z modulow autonomicznych biznesowo
+
+			- Nie
+
+				- DAO
+
+				- UI
+
+				- Logika biznesowa
+
+			- Tak
+
+				- Uzytkownicy
+
+				- Produkty
+
+				- Katalog kursow
+
+				- Oceny
+
+				- Ksiegowosc
+
+				- Faktury, etc.
+
+- Zalety
+
+	- lepsza testowalnosc
+
+		- kazdy modul mozemy testowac w izolacji
+
+		- w przypadku klasycznego monolitu
+
+			- zeby przetestowac, czy cos sie zaksiegowalo
+
+			- trzeba przetestowac e2e
+
+				- logowanie uzytkownika
+
+				- przeszukiwanie katalogu
+
+				- kupowanie
+
+				- ksiegowanie
+
+		- w modularnym monolicie
+
+			- wolamy operacje ksiegowania i zobaczyc, czy sie wykonala prawidlowo
+
+	- latwa migracja do architektury rozproszonej
+
+		- zawsze trzeba ja planowac
+
+	- prostsze utrzymanie
+
+		- koszt nie rosnie lawinowo, bo utrzymujemy kilka, niezaleznie rozwijanych aplikacji
+
+- Wady
+
+	- duplikacja danych
+
+		- moduly sa niezalezne, a czasem zachodzi potrzeba korzystania z danych jednego modulu w innym module
+
+			- Np. Kursy wyswietlaja srednia Ocene kursu
+
+			- Nie chcemy odwolywac sie do obu modulow jednoczesnie, bo to narusza ich autonomie
+
+			- wtedy modul Oceny musi powiadomic modul Kursy o zmianie sredniej oceny
+
+				- Kursy musza tę zmiane zachowac po swojej stronie
+
+					- Wiec bedzie to duplikat
+
+	- ograniczone stosowanie kluczy obcych
+
+		- Przyklad
+
+			- Na fakturze (modul Faktury) wyswietlamy nazwe konta (modul Ksiegowosc)
+
+			- nie mozemy stosowac kluczy obcych, bo to inny modul
+
+				- zamiast tego uzywamy identyfikatora biznesowego, np. nr konta
+
+	- trudniejsze zachowanie spojnosci
+
+		- Brak kluczy obcych utrudnia zachowanie spojnosci
+
+### Monolith first (najpierw monolit)
+
+- skoro modularny monolit rozwiazuje sporo wad monolitu, to...
+
+- nawet planujac system rozproszony, zaczynamy od modularnego monolitu
+
+- Dlaczego?
+
+	- monolit wybacza blednie wyznaczone granice
+
+		- granice swiadcza o sukcesie systemu rozproszonego
+
+			- zmiana granic jest bardzo kosztowna
+
+				- np. musimy przepinac klientow z jednego systemu na drugi, bo dane zostaly zmigrowane
+
+		- latwo je zmienic
+
+	- start pracy jest zdecydowanie latwiejszy i szybszy, niz w przypadku systemu rozproszonego
+
+		- szybciej dostarczamy wartosc biznesowa, bo mniejszy jest naklad na budowe i automatyzacje infrastruktury
+
+			- wazne w Agile
+
+			- duze koszty, zysk na poczatku niewspolmierny do czasu/kosztu
+
