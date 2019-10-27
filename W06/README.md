@@ -205,12 +205,6 @@
 
 	- Jest reakcją na zdarzenie
 
-	- Inaczej
-
-		- Strategia
-
-			- Wzorzec GoF strategii
-
 	- Jesli mamy zdarzenie domenowe, to inna czesc systemu moze byc nim zainteresowana
 
 		- Np. jesli aktywowano subskrypcje, to wyzwalamy Fakturowanie
@@ -220,6 +214,12 @@
 		- Moze byc wiele podprocesow
 
 	- To nie jest wzorzec Polityka z taktycznego DDD
+
+		- Inaczej
+
+			- Strategia
+
+				- Wzorzec GoF strategii
 
 	- Nie chcemy miec obslugi w ramach komendy, bo ona by rosla i rosla
 
@@ -243,7 +243,7 @@
 
 	- Nie zmienia stanu
 
-	- Pochodna wszystkich zdarzen, ktore zadzialy sie do momentu wygenrowania widoki
+	- Pochodna wszystkich zdarzen, ktore zadzialy sie do momentu wygenrowania widoku
 
 ### Pętla Event Storming
 
